@@ -1,8 +1,29 @@
+#include <algorithm>
 #include <cmath>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <string>
 using namespace std;
+
+template <class InputIt> constexpr InputIt goToStart(InputIt it, InputIt end) {
+  auto firstSpace = find(it, end, ' ');
+  return find_if_not(firstSpace, end, [](char c) { return c == ' '; });
+}
+
+auto get_number(const string &s) {
+  auto firstSpace = find(s.begin(), s.end(), ' ');
+  auto numberStart =
+      find_if_not(firstSpace, s.end(), [](char c) { return c == ' '; });
+
+  long long value = 0;
+  for_each(numberStart, s.end(), [&value](const auto c) {
+    if (c != ' ') {
+      value = value * 10 + (c - '0');
+    }
+  });
+  return value;
+}
 
 int main() {
   ifstream input("./inputs/day06");
@@ -13,66 +34,43 @@ int main() {
   getline(input, timeLine);
   getline(input, distanceLine);
 
-  auto timeIter = timeLine.begin();
-  auto distanceIter = distanceLine.begin();
+  auto time = get_number(timeLine);
+  auto distance = get_number(distanceLine);
 
-  for (; *timeIter != ' '; ++timeIter) {
-  }
-  for (; *distanceIter != ' '; ++distanceIter) {
-  }
-  for (; *timeIter == ' '; ++timeIter) {
-  }
-  for (; *distanceIter == ' '; ++distanceIter) {
-  }
-
-  auto margin = 1;
-
-  long long time = 0;
-  for (; timeIter != timeLine.end(); ++timeIter) {
-    if (*timeIter == ' ') {
-      continue;
-    }
-    time = time * 10 + (*timeIter - '0');
-  }
-  long long distance = 0;
-  for (; distanceIter != distanceLine.end(); ++distanceIter) {
-    if (*distanceIter == ' ') {
-      continue;
-    }
-    distance = distance * 10 + (*distanceIter - '0');
-  }
+  cout << time << " " << distance << endl;
 
   auto disc = time * time - 4 * distance;
-  cout << disc << endl;
   if (disc < 0) {
     cout << "race with no way to win" << endl;
-    margin = 0;
     return 1;
   }
 
   if (disc == 0) {
     if (time % 2 == 0) {
-      return 1;
+      cout << 1 << endl;
+      return 0;
     } else {
       cout << "race with no way to win" << endl;
-      margin = 0;
       return 1;
     }
   }
 
-  auto temp = (time - sqrt(disc)) / 2.0;
+  auto discSqrt = sqrt(disc);
+  auto temp = (time - discSqrt) / 2.0;
   auto root1 = ceil(temp);
   if (root1 == temp) {
     root1 += 1;
   }
-  temp = (time + sqrt(disc)) / 2.0;
+  temp = (time + discSqrt) / 2.0;
   auto root2 = floor(temp);
   if (root2 == temp) {
     root2 -= 1;
   }
 
-  cout << root1 << " " << root2 << " " << root2 - root1 + 1 << endl;
-  margin *= (root2 - root1) + 1;
+  auto margin = (root2 - root1) + 1;
+  cout << root1 << " " << root2 << endl;
 
-  cout << margin << endl;
+  cout << setprecision(10) << margin << endl;
+
+  return 0;
 }
